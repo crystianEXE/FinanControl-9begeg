@@ -1,282 +1,193 @@
 # 📦 EstoqueControl
 
-Sistema completo de gestão de locações de equipamentos e materiais para eventos.
+> Sistema completo de gestão de estoque e locações para empresas de eventos e equipamentos
 
-![EstoqueControl](https://img.shields.io/badge/version-1.0.0-blue)
-![React Native](https://img.shields.io/badge/React%20Native-0.76-blue)
-![Expo](https://img.shields.io/badge/Expo-52-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
-![License](https://img.shields.io/badge/license-Proprietary-red)
+**Desenvolvido por:** Crystian Fernando Gomes da Silva - 2025
 
----
+## 🎯 Sobre o Projeto
 
-## 📋 Sobre o Projeto
+EstoqueControl é um aplicativo móvel desenvolvido com React Native e Expo, pensado especialmente para empresários do ramo de locação de equipamentos e materiais para eventos. O sistema oferece controle total sobre estoque, clientes, contratos e logística, trazendo eficiência e organização para o seu negócio.
 
-EstoqueControl foi desenvolvido pensando no empresário do ramo de locação de equipamentos e materiais para eventos. Oferece gestão completa de estoque, clientes, contratos e logística, trazendo eficiência e organização para o seu negócio.
+## ✨ Funcionalidades
 
-### 🎯 Funcionalidades Principais
+### 📊 Dashboard em Tempo Real
+- Visão geral do estoque
+- Materiais disponíveis e locados
+- Itens em manutenção
+- Total de clientes
+- Locações ativas
 
-- **Gestão de Materiais**
-  - Cadastro com fotos
-  - QR Code para rastreamento
-  - Controle de status (Disponível/Manutenção/Danificado/Baixa)
-  - Histórico de alterações
-  - Valores de locação e reposição
+### 🔧 Gestão de Materiais
+- Cadastro completo de equipamentos
+- Controle de quantidade total e disponível
+- Status personalizáveis (Disponível, Locado, Manutenção, Danificado, Baixa)
+- Upload de fotos dos materiais
+- Histórico de alterações de status
+- Geração automática de QR Codes
+- Valores de locação e reposição
 
-- **Gestão de Clientes**
-  - Cadastro completo
-  - Histórico de locações
-  - Validações de dados
+### 👥 Gestão de Clientes
+- Cadastro completo de clientes
+- Documentos e dados de contato
+- Histórico de locações por cliente
 
-- **Sistema de Locações**
-  - Carrinho com múltiplos itens
-  - Scanner de QR Code
-  - Valores personalizáveis
-  - Cálculo automático de totais
-  - Geração de notas em PDF
+### 📝 Sistema de Locações
+- Saída de materiais via scanner QR Code ou manual
+- Carrinho com múltiplos itens
+- Configuração individual de quantidade, valor e dias
+- Notas de locação profissionais em PDF
+- Sistema de devoluções item por item
+- Notas de devolução automáticas
+- Validação de estado (normal, danificado, avariado)
 
-- **Devoluções Inteligentes**
-  - Devolução item por item
-  - Observações obrigatórias
-  - Atualização automática de status
-  - Validações de integridade
+### 🚚 Logística
+- Controle de entregas e retiradas
+- Agendamento de datas
+- Endereços de entrega
+- Status de logística
 
-- **Dashboard em Tempo Real**
-  - Indicadores atualizados automaticamente
-  - Gráficos de movimentação
-  - Estatísticas do negócio
+### 📄 Relatórios
+- Top 5 materiais mais locados
+- Últimas movimentações
+- Status detalhado de todos os materiais
+- Taxa de utilização do estoque
 
-- **Relatórios Completos**
-  - Top 5 materiais mais locados
-  - Taxa de utilização
-  - Últimas movimentações
-  - Status de todos os itens
+### 📱 Scanner QR Code
+- Leitura via câmera
+- Identificação automática de materiais
+- Adição rápida ao carrinho de saída
 
----
-
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias
 
 - **React Native** - Framework mobile
-- **Expo** - Plataforma de desenvolvimento
+- **Expo SDK 54+** - Ferramentas e APIs nativas
 - **TypeScript** - Tipagem estática
 - **Expo Router** - Navegação file-based
-- **AsyncStorage** - Persistência de dados local
-- **Expo Image** - Otimização de imagens
-- **Expo Print** - Geração de PDFs
-- **Expo Camera** - Scanner de QR Code
-- **React Native Reanimated** - Animações
-- **React Native SVG** - Gráficos e ícones
+- **AsyncStorage** - Persistência local de dados
+- **Expo Image Picker** - Upload de fotos
+- **React Native PDF** - Geração de documentos
+- **QR Code Scanner** - Leitura de códigos
 
----
-
-## 📱 Estrutura do Projeto
-
-```
-estoquecontrol/
-├── app/                      # Expo Router pages
-│   ├── (tabs)/              # Tab navigation
-│   │   ├── index.tsx        # Dashboard
-│   │   ├── materials.tsx    # Lista de materiais
-│   │   ├── customers.tsx    # Lista de clientes
-│   │   ├── rentals.tsx      # Materiais locados
-│   │   ├── scan.tsx         # Bip/Scan para saída
-│   │   └── reports.tsx      # Relatórios
-│   ├── add-material.tsx     # Cadastro de material
-│   ├── edit-material.tsx    # Edição de material
-│   ├── add-customer.tsx     # Cadastro de cliente
-│   ├── edit-customer.tsx    # Edição de cliente
-│   ├── rental-note.tsx      # Visualização de nota
-│   └── _layout.tsx          # Root layout
-├── components/              # Componentes reutilizáveis
-│   ├── ui/                  # Componentes básicos
-│   ├── layout/              # Componentes de layout
-│   └── feature/             # Componentes específicos
-├── contexts/                # Context API (Estado global)
-│   ├── MaterialsContext.tsx
-│   ├── CustomersContext.tsx
-│   ├── RentalsContext.tsx
-│   ├── LogisticsContext.tsx
-│   └── ContractsContext.tsx
-├── services/                # Lógica de negócio
-│   ├── materialService.ts
-│   ├── customerService.ts
-│   ├── rentalService.ts
-│   ├── pdfService.ts
-│   └── ...
-├── hooks/                   # Custom hooks
-├── constants/               # Constantes e temas
-├── assets/                  # Imagens e arquivos estáticos
-└── BUILD_GUIDE.md          # Guia de build e publicação
-```
-
----
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-- Node.js 16+ instalado
-- npm ou yarn
-- Expo Go app no celular (para desenvolvimento)
-
-### Instalação
+## 📥 Instalação
 
 ```bash
-# Clone o repositório (se aplicável)
-git clone [url-do-repo]
+# Clonar repositório
+git clone [url-do-repositorio]
 
-# Entre na pasta
+# Entrar no diretório
 cd estoquecontrol
 
-# Instale as dependências
+# Instalar dependências
 npm install
 
-# Inicie o servidor de desenvolvimento
+# Iniciar em desenvolvimento
 npx expo start
 ```
 
-### Desenvolvimento
+## 📱 Como Executar
+
+### Desenvolvimento (Expo Go)
 ```bash
-# Limpar cache
-npx expo start -c
-
-# Executar no Android
-npx expo start --android
-
-# Executar no iOS
-npx expo start --ios
-
-# Executar na web
-npx expo start --web
+npx expo start
 ```
+Escaneie o QR Code com o app Expo Go no seu celular.
 
----
-
-## 📦 Build e Publicação
-
-### Android (APK/AAB)
+### Build Android (APK)
 ```bash
-# Configurar EAS Build
-eas build:configure
-
-# Build APK (desenvolvimento)
+# Via EAS (recomendado)
 eas build --platform android --profile preview
 
-# Build AAB (produção - Google Play)
-eas build --platform android --profile production
+# Local
+npx expo run:android --variant release
 ```
 
-### iOS (IPA)
+### Build iOS
 ```bash
-# Build para simulador
-eas build --platform ios --profile preview
-
-# Build para App Store
 eas build --platform ios --profile production
 ```
 
-Para instruções detalhadas, consulte [BUILD_GUIDE.md](BUILD_GUIDE.md)
+## 📂 Estrutura do Projeto
 
----
-
-## ✅ Status do Projeto
-
-**Versão Atual**: 1.0.0  
-**Status**: ✅ Pronto para Produção
-
-### Checklist de Funcionalidades
-- ✅ Cadastro e edição de materiais
-- ✅ Fotos e QR Codes
-- ✅ Cadastro e edição de clientes
-- ✅ Sistema de locações completo
-- ✅ Devoluções com validações
-- ✅ Geração de PDF profissional
-- ✅ Dashboard em tempo real
-- ✅ Relatórios e análises
-- ✅ Persistência de dados (AsyncStorage)
-- ✅ Interface responsiva
-- ✅ Testes completos realizados
-
----
+```
+app/              → Telas e navegação
+components/       → Componentes reutilizáveis
+contexts/         → Gerenciamento de estado global
+hooks/            → Custom hooks
+services/         → Lógica de negócio
+constants/        → Temas e estilos
+assets/           → Imagens e arquivos estáticos
+```
 
 ## 🎨 Design System
 
-### Cores Principais
-```javascript
-primary: '#667EEA'      // Roxo principal
-secondary: '#764BA2'    // Roxo secundário
-success: '#10B981'      // Verde sucesso
-danger: '#EF4444'       // Vermelho erro
-warning: '#F59E0B'      // Amarelo aviso
-info: '#3B82F6'         // Azul informação
-```
+O app utiliza um design system consistente com:
+- Cores personalizáveis (tema light/dark)
+- Componentes padronizados
+- Ícones do @expo/vector-icons
+- Tipografia hierárquica
+- Espaçamentos consistentes
+- Sombras e elevações
 
-### Tipografia
-```javascript
-fontSize: {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 24,
-  xxl: 32,
-}
+## 📖 Guia de Uso
 
-fontWeight: {
-  regular: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
-}
-```
+### 1️⃣ Cadastrar Materiais
+- Acesse "Materiais" → Botão "+"
+- Preencha nome, código, quantidade
+- Adicione foto (opcional)
+- Defina valores de locação e reposição
+- Salve
 
----
+### 2️⃣ Cadastrar Clientes
+- Acesse "Clientes" → Botão "+"
+- Preencha dados completos
+- Salve
+
+### 3️⃣ Fazer uma Locação
+- Acesse "Bip Scan"
+- Selecione cliente
+- Escaneie QR Code ou adicione manualmente
+- Configure quantidade, valor e dias para cada item
+- Preencha dados de entrega
+- Gere a nota de locação
+
+### 4️⃣ Fazer Devolução
+- Acesse "Locados"
+- Selecione a locação
+- Clique no item para devolver
+- Informe o estado do material
+- Confirme a devolução
+- Ao devolver todos os itens, uma nota de devolução é gerada
+
+## 🔐 Dados e Privacidade
+
+- Todos os dados são armazenados localmente no dispositivo
+- Nenhuma informação é enviada para servidores externos
+- Backup manual via exportação (funcionalidade futura)
+
+## 🚀 Roadmap Futuro
+
+- [ ] Integração com backend (Supabase)
+- [ ] Sincronização em nuvem
+- [ ] Backup automático
+- [ ] Relatórios avançados
+- [ ] Envio de notas por email/WhatsApp
+- [ ] Multi-usuários
+- [ ] Dashboard web
+
+## 🐛 Problemas Conhecidos
+
+Consulte o arquivo `SETUP_GUIDE.md` para soluções de problemas comuns.
 
 ## 📄 Licença
 
-**Proprietary Software**  
-© 2025 Crystian Fernando Gomes da Silva. Todos os direitos reservados.
+Todos os direitos reservados - Crystian Fernando Gomes da Silva © 2025
 
-Este software é proprietário e não pode ser copiado, modificado ou distribuído sem autorização expressa do autor.
+## 👤 Desenvolvedor
 
----
+**Crystian Fernando Gomes da Silva**
 
-## 👨‍💻 Desenvolvedor
-
-**Crystian Fernando Gomes da Silva**  
-Desenvolvedor Full Stack Sênior  
-Ano: 2025
+EstoqueControl foi desenvolvido pensando no empresário do ramo de locação de equipamentos e materiais para eventos, trazendo uma solução completa, moderna e intuitiva para gestão do seu negócio.
 
 ---
 
-## 📞 Suporte
-
-Para dúvidas, sugestões ou reportar problemas:
-- Email: [seu-email@example.com]
-- WhatsApp: [seu-numero]
-
----
-
-## 🔄 Histórico de Versões
-
-### 1.0.0 (Janeiro 2025)
-- 🎉 Lançamento inicial
-- ✅ Sistema completo de gestão de materiais
-- ✅ Cadastro de clientes
-- ✅ Sistema de locações com múltiplos itens
-- ✅ Devoluções com observações
-- ✅ Geração de PDF profissional
-- ✅ QR Code para rastreamento
-- ✅ Dashboard em tempo real
-- ✅ Relatórios e análises
-
----
-
-## 🙏 Agradecimentos
-
-Desenvolvido com ❤️ usando OnSpace AI Platform.
-
-**OnSpace**: https://www.onspace.ai
-
----
-
-**EstoqueControl** - Sistema profissional de gestão de locações 🚀
+⭐ **Se este projeto te ajudou, considere dar uma estrela!**
