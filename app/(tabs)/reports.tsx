@@ -198,10 +198,10 @@ export default function ReportsScreen() {
               <View key={material.id} style={styles.materialStatusItem}>
                 <View style={styles.materialStatusInfo}>
                   <Text style={styles.materialStatusName}>{material.name}</Text>
-                  <Text style={styles.materialStatusLocation}>
+                  <View style={styles.materialStatusLocation}>
                     <Ionicons name="location" size={12} color={theme.colors.textSecondary} />
-                    {' '}{material.location}
-                  </Text>
+                    <Text style={styles.materialStatusLocationText}>{material.location}</Text>
+                  </View>
                 </View>
                 
                 <View style={styles.materialStatusBadge}>
@@ -429,6 +429,12 @@ const styles = StyleSheet.create({
   },
   
   materialStatusLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+  
+  materialStatusLocationText: {
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
   },
