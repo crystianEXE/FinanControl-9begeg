@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { materialService, Material, Movement, ChartData, MaterialStatus } from '../services/materialService';
 
 interface MaterialsContextType {
@@ -37,14 +38,38 @@ export function MaterialsProvider({ children }: { children: ReactNode }) {
     loadInitialData();
   }, []);
   
-  const loadInitialData = () => {
-    setChartData(materialService.generateChartData(7));
-    
-    // Dados zerados para uso real
-    const sampleMaterials: Material[] = [];
-    
-    setMaterials(sampleMaterials);
-    setLoading(false);
+  useEffect(() => {
+    saveData();
+  }, [materials, movements]);
+  
+  const loadInitialData = async () => {
+    try {
+      const storedMaterials = await AsyncStorage.getItem('@materials');
+      const storedMovements = await AsyncStorage.getItem('@movements');
+      
+      if (storedMaterials) {
+        setMaterials(JSON.parse(storedMaterials));
+      }
+      
+      if (storedMovements) {
+        setMovements(JSON.parse(storedMovements));
+      }
+      
+      setChartData(materialService.generateChartData(7));
+    } catch (error) {
+      console.error('Error loading materials:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem('@materials', JSON.stringify(materials));
+      await AsyncStorage.setItem('@movements', JSON.stringify(movements));
+    } catch (error) {
+      console.error('Error saving materials:', error);
+    }
   };
   
   const addMaterial = (data: Omit<Material, 'id' | 'rentedQuantity' | 'status' | 'statusHistory' | 'createdAt'>) => {

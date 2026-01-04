@@ -1,4 +1,5 @@
 import React, { createContext, useState, ReactNode, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { rentalService, RentalNote } from '../services/rentalService';
 
 interface RentalsContextType {
@@ -22,7 +23,15 @@ export const RentalsContext = createContext<RentalsContextType | undefined>(unde
 
 export function RentalsProvider({ children }: { children: ReactNode }) {
   const [rentals, setRentals] = useState<RentalNote[]>([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    loadData();
+  }, []);
+  
+  useEffect(() => {
+    saveData();
+  }, [rentals]);
   
   // Check for overdue rentals periodically
   useEffect(() => {
@@ -35,6 +44,27 @@ export function RentalsProvider({ children }: { children: ReactNode }) {
     
     return () => clearInterval(interval);
   }, []);
+  
+  const loadData = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('@rentals');
+      if (stored) {
+        setRentals(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error loading rentals:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem('@rentals', JSON.stringify(rentals));
+    } catch (error) {
+      console.error('Error saving rentals:', error);
+    }
+  };
   
   const addRental = (data: Omit<RentalNote, 'id' | 'noteNumber' | 'createdAt' | 'status'>) => {
     const newRental = rentalService.createRentalNote(

@@ -1,4 +1,5 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { customerService, Customer } from '../services/customerService';
 
 interface CustomersContextType {
@@ -16,9 +17,37 @@ interface CustomersContextType {
 export const CustomersContext = createContext<CustomersContextType | undefined>(undefined);
 
 export function CustomersProvider({ children }: { children: ReactNode }) {
-  // Dados zerados para uso real
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    loadData();
+  }, []);
+  
+  useEffect(() => {
+    saveData();
+  }, [customers]);
+  
+  const loadData = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('@customers');
+      if (stored) {
+        setCustomers(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error loading customers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem('@customers', JSON.stringify(customers));
+    } catch (error) {
+      console.error('Error saving customers:', error);
+    }
+  };
   
   const addCustomer = (data: Omit<Customer, 'id' | 'createdAt' | 'totalRentals'>) => {
     const newCustomer = customerService.createCustomer(data);

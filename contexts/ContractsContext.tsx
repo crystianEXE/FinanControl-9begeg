@@ -1,4 +1,5 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { contractService, Contract, ContractItem } from '../services/contractService';
 
 interface ContractsContextType {
@@ -21,7 +22,36 @@ export const ContractsContext = createContext<ContractsContextType | undefined>(
 
 export function ContractsProvider({ children }: { children: ReactNode }) {
   const [contracts, setContracts] = useState<Contract[]>([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    loadData();
+  }, []);
+  
+  useEffect(() => {
+    saveData();
+  }, [contracts]);
+  
+  const loadData = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('@contracts');
+      if (stored) {
+        setContracts(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error loading contracts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem('@contracts', JSON.stringify(contracts));
+    } catch (error) {
+      console.error('Error saving contracts:', error);
+    }
+  };
   
   const addContract = (data: Omit<Contract, 'id' | 'contractNumber' | 'createdAt' | 'subtotal' | 'totalAmount'>) => {
     const subtotal = contractService.calculateSubtotal(data.items);

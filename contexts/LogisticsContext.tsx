@@ -1,4 +1,5 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logisticsService, Delivery } from '../services/logisticsService';
 
 interface LogisticsContextType {
@@ -17,9 +18,37 @@ interface LogisticsContextType {
 export const LogisticsContext = createContext<LogisticsContextType | undefined>(undefined);
 
 export function LogisticsProvider({ children }: { children: ReactNode }) {
-  // Dados zerados para uso real
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    loadData();
+  }, []);
+  
+  useEffect(() => {
+    saveData();
+  }, [deliveries]);
+  
+  const loadData = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('@deliveries');
+      if (stored) {
+        setDeliveries(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error loading deliveries:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem('@deliveries', JSON.stringify(deliveries));
+    } catch (error) {
+      console.error('Error saving deliveries:', error);
+    }
+  };
   
   const addDelivery = (data: Omit<Delivery, 'id' | 'status' | 'createdAt'>) => {
     const newDelivery = logisticsService.createDelivery(data);
