@@ -139,11 +139,16 @@ export const materialService = {
       throw new Error('Quantidade insuficiente disponível');
     }
     
+    const newRentedQuantity = material.rentedQuantity + quantity;
+    const newAvailable = material.totalQuantity - newRentedQuantity;
+    
+    // Só muda o status para 'rented' se TODAS as unidades estiverem locadas
+    const newStatus = newAvailable === 0 ? 'rented' : material.status;
+    
     return {
       ...material,
-      rentedQuantity: material.rentedQuantity + quantity,
-      location: customer || 'Em rota',
-      status: 'rented',
+      rentedQuantity: newRentedQuantity,
+      status: newStatus,
     };
   },
   
