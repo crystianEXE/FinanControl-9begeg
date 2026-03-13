@@ -1,60 +1,52 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAlert } from '@/template';
+import { Screen } from '../components';
 import { theme } from '../constants/theme';
+import { exportService } from '../services/exportService';
+import { useAlert } from '@/template';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { showAlert } = useAlert();
-  
   const [notifications, setNotifications] = useState(true);
-  const [lowStockAlert, setLowStockAlert] = useState(true);
-  const [autoBackup, setAutoBackup] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [exporting, setExporting] = useState(false);
   
-  const handleExportData = () => {
-    showAlert('Exportar Dados', 'Funcionalidade de exportação em desenvolvimento. Em breve você poderá exportar todos os dados em CSV/Excel');
+  const handleExportCode = async () => {
+    setExporting(true);
+    try {
+      const fileUri = await exportService.exportSourceCode();
+      await exportService.shareSourceCode(fileUri);
+      showAlert('Código exportado', 'Código-fonte completo exportado com sucesso!');
+    } catch (error: any) {
+      showAlert('Erro', error.message || 'Erro ao exportar código-fonte');
+    } finally {
+      setExporting(false);
+    }
   };
-  
-  const handleImportData = () => {
-    showAlert('Importar Dados', 'Funcionalidade de importação em desenvolvimento. Em breve você poderá importar dados de outros sistemas');
-  };
-  
-  const handleClearCache = () => {
-    showAlert('Limpar Cache', 'Cache limpo com sucesso!', [
-      { text: 'OK', style: 'default' }
-    ]);
-  };
-  
-  const handleAbout = () => {
-    showAlert(
-      'Sobre o FinanControl',
-      'Sistema de gerenciamento de estoque para locação de equipamentos em eventos.\n\nVersão: 1.0.0 (Protótipo)\n\nDesenvolvido com React Native + Expo'
-    );
-  };
-  
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <Screen>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Configurações</Text>
-        <View style={{ width: 40 }} />
+        <Text style={styles.title}>Configurações</Text>
       </View>
       
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        {/* Notificações */}
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔔 Notificações</Text>
+          <Text style={styles.sectionTitle}>Preferências</Text>
           
-          <View style={styles.settingRow}>
+          <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Ativar Notificações</Text>
-              <Text style={styles.settingDescription}>Receber alertas do sistema</Text>
+              <Ionicons name="notifications" size={24} color={theme.colors.primary} />
+              <View style={styles.settingText}>
+                <Text style={styles.settingLabel}>Notificações</Text>
+                <Text style={styles.settingDescription}>Receber alertas do sistema</Text>
+              </View>
             </View>
             <Switch
               value={notifications}
@@ -63,146 +55,89 @@ export default function SettingsScreen() {
             />
           </View>
           
-          <View style={styles.settingRow}>
+          <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Alerta de Estoque Baixo</Text>
-              <Text style={styles.settingDescription}>Notificar quando quantidade estiver baixa</Text>
+              <Ionicons name="moon" size={24} color={theme.colors.primary} />
+              <View style={styles.settingText}>
+                <Text style={styles.settingLabel}>Modo Escuro</Text>
+                <Text style={styles.settingDescription}>Tema escuro (em breve)</Text>
+              </View>
             </View>
             <Switch
-              value={lowStockAlert}
-              onValueChange={setLowStockAlert}
+              value={darkMode}
+              onValueChange={setDarkMode}
               trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+              disabled
             />
           </View>
         </View>
         
-        {/* Dados */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>💾 Gerenciar Dados</Text>
+          <Text style={styles.sectionTitle}>Backup e Exportação</Text>
           
-          <TouchableOpacity style={styles.settingButton} onPress={handleExportData}>
-            <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.success}20` }]}>
-              <Ionicons name="download" size={20} color={theme.colors.success} />
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Exportar Dados</Text>
-              <Text style={styles.settingDescription}>Baixar backup em CSV/Excel</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textLight} />
+          <TouchableOpacity
+            style={styles.exportButton}
+            onPress={handleExportCode}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <Ionicons name="download" size={24} color="#FFFFFF" />
+                <View style={styles.exportButtonText}>
+                  <Text style={styles.exportButtonTitle}>Baixar Código-Fonte</Text>
+                  <Text style={styles.exportButtonSubtitle}>
+                    Exportar código completo do app em JSON
+                  </Text>
+                </View>
+              </>
+            )}
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.settingButton} onPress={handleImportData}>
-            <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.info}20` }]}>
-              <Ionicons name="cloud-upload" size={20} color={theme.colors.info} />
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Importar Dados</Text>
-              <Text style={styles.settingDescription}>Carregar dados de outros sistemas</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textLight} />
-          </TouchableOpacity>
-          
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Backup Automático</Text>
-              <Text style={styles.settingDescription}>Salvar dados diariamente</Text>
-            </View>
-            <Switch
-              value={autoBackup}
-              onValueChange={setAutoBackup}
-              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-            />
+          <View style={styles.exportInfo}>
+            <Ionicons name="information-circle" size={16} color={theme.colors.textSecondary} />
+            <Text style={styles.exportInfoText}>
+              O código-fonte completo será exportado em formato JSON com todos os arquivos, 
+              configurações e documentação do projeto.
+            </Text>
           </View>
         </View>
         
-        {/* Impressoras */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🖨️ Impressoras</Text>
+          <Text style={styles.sectionTitle}>Sobre</Text>
           
-          <TouchableOpacity 
-            style={styles.settingButton}
-            onPress={() => showAlert('Impressoras', 'Configuração de impressoras térmicas em desenvolvimento')}
-          >
-            <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.secondary}20` }]}>
-              <Ionicons name="print" size={20} color={theme.colors.secondary} />
-            </View>
+          <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Impressoras Térmicas</Text>
-              <Text style={styles.settingDescription}>Configurar impressão de QR Codes</Text>
+              <Ionicons name="information-circle" size={24} color={theme.colors.primary} />
+              <View style={styles.settingText}>
+                <Text style={styles.settingLabel}>Versão</Text>
+                <Text style={styles.settingValue}>1.0.0</Text>
+              </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textLight} />
-          </TouchableOpacity>
-        </View>
-        
-        {/* Segurança */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔒 Segurança e Privacidade</Text>
+          </View>
           
-          <TouchableOpacity 
-            style={styles.settingButton}
-            onPress={() => showAlert('Níveis de Acesso', 'Gerenciamento de permissões em desenvolvimento')}
-          >
-            <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.warning}20` }]}>
-              <Ionicons name="shield-checkmark" size={20} color={theme.colors.warning} />
-            </View>
+          <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Níveis de Acesso</Text>
-              <Text style={styles.settingDescription}>Gerenciar permissões de usuários</Text>
+              <Ionicons name="person" size={24} color={theme.colors.primary} />
+              <View style={styles.settingText}>
+                <Text style={styles.settingLabel}>Desenvolvedor</Text>
+                <Text style={styles.settingValue}>Crystian Fernando Gomes da Silva</Text>
+              </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textLight} />
-          </TouchableOpacity>
-        </View>
-        
-        {/* Sistema */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚙️ Sistema</Text>
-          
-          <TouchableOpacity style={styles.settingButton} onPress={handleClearCache}>
-            <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.danger}20` }]}>
-              <Ionicons name="trash" size={20} color={theme.colors.danger} />
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Limpar Cache</Text>
-              <Text style={styles.settingDescription}>Liberar espaço de armazenamento</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textLight} />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.settingButton} onPress={handleAbout}>
-            <View style={[styles.iconContainer, { backgroundColor: `${theme.colors.primary}20` }]}>
-              <Ionicons name="information-circle" size={20} color={theme.colors.primary} />
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Sobre</Text>
-              <Text style={styles.settingDescription}>Informações do aplicativo</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textLight} />
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>FinanControl v1.0.0</Text>
-          <Text style={styles.footerSubtext}>Sistema de Gestão de Estoque</Text>
+          </View>
         </View>
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    marginBottom: theme.spacing.lg,
+    gap: theme.spacing.md,
   },
   
   backButton: {
@@ -212,18 +147,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   
-  headerTitle: {
-    fontSize: theme.fontSize.lg,
+  title: {
+    fontSize: theme.fontSize.xxl,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-  },
-  
-  scroll: {
-    flex: 1,
-  },
-  
-  content: {
-    padding: theme.spacing.lg,
   },
   
   section: {
@@ -237,37 +164,25 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   
-  settingRow: {
+  settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
     marginBottom: theme.spacing.sm,
     ...theme.shadows.sm,
-  },
-  
-  settingButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-    ...theme.shadows.sm,
-  },
-  
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: theme.spacing.md,
   },
   
   settingInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: theme.spacing.md,
+  },
+  
+  settingText: {
     flex: 1,
   },
   
@@ -283,20 +198,52 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
   },
   
-  footer: {
-    alignItems: 'center',
-    paddingVertical: theme.spacing.xl,
-  },
-  
-  footerText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-  },
-  
-  footerSubtext: {
+  settingValue: {
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.xs,
+  },
+  
+  exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.md,
+    gap: theme.spacing.md,
+    ...theme.shadows.md,
+  },
+  
+  exportButtonText: {
+    flex: 1,
+  },
+  
+  exportButtonTitle: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.bold,
+    color: '#FFFFFF',
+    marginBottom: theme.spacing.xs,
+  },
+  
+  exportButtonSubtitle: {
+    fontSize: theme.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  
+  exportInfo: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: `${theme.colors.primary}10`,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.sm,
+    marginTop: theme.spacing.md,
+    gap: theme.spacing.sm,
+  },
+  
+  exportInfoText: {
+    flex: 1,
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.textSecondary,
+    lineHeight: 18,
   },
 });
